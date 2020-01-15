@@ -7,6 +7,8 @@ import { DangerUtilsDSL } from "./DangerUtilsDSL"
 import { CliArgs } from "../dsl/cli-args"
 import { GitLabDSL } from "./GitLabDSL"
 import { BitBucketCloudJSONDSL, BitBucketCloudDSL } from "./BitBucketCloudDSL"
+import { Gerrit } from "../platforms/Gerrit"
+import { GerritDSL } from "./GerritDSL"
 
 /**
  * The shape of the JSON passed between Danger and a subprocess. It's built
@@ -61,6 +63,8 @@ export interface DangerDSLJSONType {
   bitbucket_server?: BitBucketServerJSONDSL
   /** The data only version of BitBucket Cloud DSL */
   bitbucket_cloud?: BitBucketCloudJSONDSL
+  /** The data only version of Gerrit DSL */
+  gerrit?: GerritDSL
   /** The data only version of GitLab DSL */
   gitlab?: GitLabDSL
   /**
@@ -150,6 +154,8 @@ export interface DangerDSLType {
    * is classed as non-nullable
    */
   readonly gitlab: GitLabDSL
+
+  readonly gerrit: GerritD
 
   /**
    * Functions which are globally useful in most Dangerfiles. Right

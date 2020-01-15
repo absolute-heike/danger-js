@@ -4,6 +4,7 @@ import { BitBucketServer } from "./BitBucketServer"
 import { GitHub } from "./GitHub"
 import GitLab from "./GitLab"
 import { BitBucketCloud } from "./BitBucketCloud"
+import { Gerrit } from "./Gerrit"
 
 export interface PullRequestParts {
   pullRequestNumber: string
@@ -52,6 +53,23 @@ export function pullRequestParser(address: string): PullRequestParts | null {
           platform: GitLab.name,
           repo: parts[1],
           pullRequestNumber: parts[2],
+        }
+      }
+    }
+
+    // shape: http://localhost:8080/changes/Test~master~Ib34169f453fee034ca06550065de99b439b167e0
+    if (includes(components.path, "changes")) {
+      const prInfo = components.path.split("/changes/")[1]
+
+      if (prInfo) {
+        const repo = prInfo.split("~")[0]
+        const branch = prInfo.split("~")[1]
+        const changeID = prInfo.split("~")[2]
+
+        return {
+          platform: Gerrit.name,
+          repo: repo,
+          pullRequestNumber: branch + "~" + changeID,
         }
       }
     }

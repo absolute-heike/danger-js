@@ -20,6 +20,7 @@ import GitLabAPI, { getGitLabAPICredentialsFromEnv } from "../platforms/gitlab/G
 import { gitLabGitDSL } from "../platforms/gitlab/GitLabGit"
 import { bitBucketCloudGitDSL } from "../platforms/bitbucket_cloud/BitBucketCloudGit"
 import { bitbucketServerJSONToBitBucketServerDSL } from "../platforms/BitBucketServer"
+import { GerritAPI, RepoMetaData, GerritRepoCredentials } from "../platforms/gerrit/GerritAPI"
 const d = debug("jsonToDSL")
 
 /**
@@ -30,11 +31,12 @@ export const jsonToDSL = async (dsl: DangerDSLJSONType, source: CISource): Promi
   d(`Creating ${source && source.useEventDSL ? "event" : "pr"} DSL from JSON`)
 
   const api = apiForDSL(dsl)
-  const platformExists = [dsl.github, dsl.bitbucket_server, dsl.gitlab, dsl.bitbucket_cloud].some(p => !!p)
+  const platformExists = [dsl.github, dsl.bitbucket_server, dsl.gitlab, dsl.gerrit, dsl.bitbucket_cloud].some(p => !!p)
   const github = dsl.github && githubJSONToGitHubDSL(dsl.github, api as OctoKit)
   const bitbucket_server =
     dsl.bitbucket_server && bitbucketServerJSONToBitBucketServerDSL(dsl.bitbucket_server, api as BitBucketServerAPI)
   const bitbucket_cloud = dsl.bitbucket_cloud
+  const gerrit = dsl.gerrit
   const gitlab = dsl.gitlab && gitlabJSONToGitLabDSL(dsl.gitlab, api as GitLabAPI)
 
   let git: GitDSL
@@ -59,6 +61,7 @@ export const jsonToDSL = async (dsl: DangerDSLJSONType, source: CISource): Promi
     github: github!,
     bitbucket_server: bitbucket_server!,
     bitbucket_cloud: bitbucket_cloud!,
+    gerrit: gerrit,
     gitlab: gitlab!,
     utils: {
       sentence,
@@ -67,13 +70,27 @@ export const jsonToDSL = async (dsl: DangerDSLJSONType, source: CISource): Promi
   }
 }
 
-const apiForDSL = (dsl: DangerDSLJSONType): OctoKit | BitBucketServerAPI | GitLabAPI | BitBucketCloudAPI => {
+const apiForDSL = (
+  dsl: DangerDSLJSONType
+): OctoKit | BitBucketServerAPI | GitLabAPI | BitBucketCloudAPI | GerritAPI => {
   if (process.env["DANGER_BITBUCKETSERVER_HOST"]) {
     return new BitBucketServerAPI(dsl.bitbucket_server!.metadata, bitbucketServerRepoCredentialsFromEnv(process.env))
   }
 
   if (process.env["DANGER_BITBUCKETCLOUD_OAUTH_KEY"] || process.env["DANGER_BITBUCKETCLOUD_USERNAME"]) {
     return new BitBucketCloudAPI(dsl.bitbucket_cloud!.metadata, bitbucketCloudCredentialsFromEnv(process.env))
+  }
+
+  // debugger
+
+  if (process.env["DANGER_GERRIT_HOST"]) {
+    const metadata = { changeID: "blabla" } as RepoMetaData
+    const credentials = {
+      host: "localhost:8080",
+      username: "admin",
+      password: "blabla",
+    } as GerritRepoCredentials
+    return new GerritAPI(metadata, credentials)
   }
 
   const gitlab = dsl.gitlab

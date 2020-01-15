@@ -13,6 +13,8 @@ import { ExecutorOptions } from "../runner/Executor"
 import { DangerRunner } from "../runner/runners/runner"
 import chalk from "chalk"
 import { FakePlatform } from "./FakePlatform"
+import { Gerrit } from "./Gerrit"
+import { GerritAPI, RepoMetaData, GerritRepoCredentials } from "./gerrit/GerritAPI"
 
 /** A type that represents the downloaded metadata about a code review session */
 export type Metadata = any
@@ -140,6 +142,19 @@ export function getPlatformForEnv(env: Env, source: CISource): Platform {
       getGitLabAPICredentialsFromEnv(env)
     )
     return new GitLab(api)
+  }
+
+  // Gerrit
+  if (env["DANGER_GERRIT_HOST"] || env["DANGER_PR_PLATFORM"] === Gerrit.name) {
+    const metadata = { changeID: "blabla" } as RepoMetaData
+    const credentials = {
+      host: "localhost:8080",
+      username: "admin",
+      password: "blabla",
+    } as GerritRepoCredentials
+    const api = new GerritAPI(metadata, credentials)
+
+    return new Gerrit(api)
   }
 
   // They need to set the token up for GitHub actions to work

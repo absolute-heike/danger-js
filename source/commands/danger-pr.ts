@@ -72,13 +72,16 @@ if (program.args.length === 0) {
   process.exitCode = 1
 } else {
   const customHost =
-    process.env["DANGER_GITHUB_HOST"] || process.env["DANGER_BITBUCKETSERVER_HOST"] || gitLabApiCredentials.host // this defaults to https://gitlab.com
+    process.env["DANGER_GITHUB_HOST"] ||
+    process.env["DANGER_BITBUCKETSERVER_HOST"] ||
+    process.env["DANGER_GERRIT_HOST"] ||
+    gitLabApiCredentials.host // this defaults to https://gitlab.com
 
   // Allow an ambiguous amount of args to find the PR reference
   const findPR = program.args.find(a => a.includes(customHost) || a.includes("github") || a.includes("bitbucket.org"))
 
   if (!findPR) {
-    console.error(`Could not find an arg which mentioned GitHub, BitBucket Server, BitBucket Cloud, or GitLab.`)
+    console.error(`Could not find an arg which mentioned GitHub, BitBucket Server, BitBucket Cloud, GitLab or Gerrit.`)
     process.exitCode = 1
   } else {
     const pr = pullRequestParser(findPR)
