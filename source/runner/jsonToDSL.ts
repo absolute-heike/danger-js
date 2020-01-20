@@ -1,6 +1,7 @@
 import OctoKit from "@octokit/rest"
 
 import { DangerDSLJSONType, DangerDSLType } from "../dsl/DangerDSL"
+import { gerritGitDSL } from "../platforms/gerrit/GerritGit"
 import { gitHubGitDSL as githubJSONToGitDSL } from "../platforms/github/GitHubGit"
 import { githubJSONToGitHubDSL } from "../platforms/GitHub"
 import { sentence, href } from "./DangerUtils"
@@ -47,6 +48,8 @@ export const jsonToDSL = async (dsl: DangerDSLJSONType, source: CISource): Promi
     git = bitBucketServerGitDSL(bitbucket_server!, dsl.git, api as BitBucketServerAPI)
   } else if (process.env["DANGER_BITBUCKETCLOUD_OAUTH_KEY"] || process.env["DANGER_BITBUCKETCLOUD_USERNAME"]) {
     git = bitBucketCloudGitDSL(bitbucket_cloud!, dsl.git, api as BitBucketCloudAPI)
+  } else if (process.env["DANGER_GERRIT_HOST"]) {
+    git = gerritGitDSL(gerrit!, dsl.git)
   } else if (process.env["DANGER_GITLAB_API_TOKEN"]) {
     git = gitLabGitDSL(gitlab!, dsl.git)
   } else {
@@ -61,7 +64,7 @@ export const jsonToDSL = async (dsl: DangerDSLJSONType, source: CISource): Promi
     github: github!,
     bitbucket_server: bitbucket_server!,
     bitbucket_cloud: bitbucket_cloud!,
-    gerrit: gerrit,
+    gerrit: gerrit!,
     gitlab: gitlab!,
     utils: {
       sentence,

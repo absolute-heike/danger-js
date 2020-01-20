@@ -155,7 +155,7 @@ export interface DangerDSLType {
    */
   readonly gitlab: GitLabDSL
 
-  readonly gerrit: GerritD
+  readonly gerrit: GerritDSL
 
   /**
    * Functions which are globally useful in most Dangerfiles. Right
@@ -170,6 +170,7 @@ export interface DangerDSLType {
 export class DangerDSL {
   public readonly github?: GitHubDSL
   public readonly bitbucket_server?: BitBucketServerDSL
+  public readonly gerrit?: GerritDSL
   public readonly gitlab?: GitLabDSL
 
   constructor(platformDSL: any, public readonly git: GitJSONDSL, public readonly utils: DangerUtilsDSL, name: string) {
@@ -177,10 +178,16 @@ export class DangerDSL {
       case "GitHub":
       case "Fake": // Testing only
         this.github = platformDSL
+        break
       case "BitBucketServer":
         this.bitbucket_server = platformDSL
+        break
+      case "Gerrit":
+        this.gerrit = platformDSL
+        break
       case "GitLab":
         this.gitlab = platformDSL
+        break
     }
   }
 }

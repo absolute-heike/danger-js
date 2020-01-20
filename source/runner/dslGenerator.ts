@@ -51,6 +51,8 @@ const jsonDSLPlatformName = (platform: Platform): string => {
       return "bitbucket_server"
     case "BitBucketCloud":
       return "bitbucket_cloud"
+    case "Gerrit":
+      return "gerrit"
     case "GitLab":
       return "gitlab"
     case "GitHub":
