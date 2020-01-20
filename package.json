@@ -174,6 +174,9 @@
     "supports-hyperlinks": "^1.0.1"
   },
   "optionalDependencies": {},
+  "resolutions": {
+    "fsevents": "1.2.9"
+  },
   "husky": {
     "hooks": {
       "pre-commit": "lint-staged",
